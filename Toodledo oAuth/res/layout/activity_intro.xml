@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:fillViewport="true" >
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="#ffffff" >
+
+        <!-- Header  Starts -->
+
+        <LinearLayout
+            android:id="@+id/header"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:background="@layout/header_gradient"
+            android:paddingBottom="5dip"
+            android:paddingTop="5dip" >
+
+            <!-- Logo Start -->
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dip"
+                android:contentDescription="@string/logo_description"
+                android:src="@drawable/toodledo_logo" />
+            <!-- Logo Ends -->
+
+        </LinearLayout>
+        <!-- Header Ends -->
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/header"
+            android:orientation="vertical"
+            android:padding="10dip" >
+
+            <TextView
+                android:id="@+id/app_id_lbl"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/app_id"
+                android:textColor="#372c24" />
+
+            <EditText
+                android:id="@+id/app_id"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dip"
+                android:layout_marginTop="5dip"
+                android:layout_weight="1"
+                android:hint="@string/app_id_hint"
+                android:inputType="text"
+                android:singleLine="true" />
+        
+
+            <TextView
+                android:id="@+id/secret_lbl"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/secret"
+                android:textColor="#372c24" />
+
+            <EditText
+                android:id="@+id/secret"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dip"
+                android:layout_marginTop="5dip"
+                android:hint="@string/app_secret_hint"
+                android:inputType="text"
+                android:singleLine="true" />
+         
+
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:orientation="horizontal" >
+
+                <Button
+                    android:id="@+id/btn_oauth_toodledo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1"
+                    android:text="@string/oauth" />
+
+                <Button
+                    android:id="@+id/btn_api_toodledo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1"
+                    android:text="@string/api_call"
+                    android:visibility="gone" />
+
+                <Button
+                    android:id="@+id/btn_clear_toodledo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1"
+                    android:text="@string/clear_credentials" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/txt_oauth_toodledo"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:gravity="center_horizontal"
+                        android:layout_marginTop="15dip"
+                android:typeface="normal" />
+        </LinearLayout>
+    </RelativeLayout>
+
+</ScrollView>

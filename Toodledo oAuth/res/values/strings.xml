@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Toodledo oAuth</string>
+    <string name="waiting_for_data">Waiting for data....</string>
+    <string name="launch_oauth_flow">Launch OAuth Flow</string>
+    <string name="clear_credentials">Clear Credentials</string>
+    <string name="oauth_toodledo">Toodledo OAuth</string> 
+    <string name="oauth">Authorize</string>
+    <string name="api_call">Get User Info</string>
+    <string name="app_id">App ID</string>
+    <string name="secret">Secret</string>
+    <string name="authorization">Authorization Code</string>
+    <string name="access">Access</string>
+    <string name="refresh">Refresh</string>
+    <string name="user_email">User email</string>
+    <string name="title_activity_form">FormActivity</string>
+    <string name="action_settings">Settings</string>
+    <string name="logo_description">Toodledo Logo</string>
+    <string name="app_id_hint">Your App ID</string>
+    <string name="app_secret_hint">Your App Secret</string>
+    <string name="access_token">Access Token</string>
+    <string name="refresh_token">Refresh Token</string> 
+
+</resources>
