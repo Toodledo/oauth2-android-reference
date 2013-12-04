@@ -1,7 +1,6 @@
 package com.toodledo.android.oauth2;
 
 import android.app.Application;
-import android.text.TextUtils;
 
 public class ApplicationController extends Application {
 
@@ -9,7 +8,8 @@ public class ApplicationController extends Application {
 	 * Log or request TAG
 	 */
 	public static final String TAG = "ApplicationContext";
-	private Oauth2Params oauth2Params;
+	
+	private Parameters oauth2Params;
 
 	/**
 	 * A singleton instance of the application class for easy access in other
@@ -20,7 +20,8 @@ public class ApplicationController extends Application {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		setOauth2Params(Constants.OAUTH2PARAMS);
+		setParameters(new Parameters());
+		
 		// initialize the singleton
 		sInstance = this;
 	}
@@ -32,11 +33,11 @@ public class ApplicationController extends Application {
 		return sInstance;
 	}
 
-	public Oauth2Params getOauth2Params() {
+	public Parameters getParameters() {
 		return oauth2Params;
 	}
 
-	public void setOauth2Params(Oauth2Params oauth2Params) {
+	public void setParameters(Parameters oauth2Params) {
 		this.oauth2Params = oauth2Params;
 	}
 }

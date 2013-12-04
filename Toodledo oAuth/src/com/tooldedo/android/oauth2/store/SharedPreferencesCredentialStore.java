@@ -1,7 +1,6 @@
 package com.tooldedo.android.oauth2.store;
 
 import java.io.IOException;
-import java.net.URLDecoder;
 
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
@@ -9,8 +8,8 @@ import android.util.Log;
 
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.auth.oauth2.CredentialStore;
-import com.toodledo.android.oauth2.ApplicationController;
-import com.toodledo.android.oauth2.Constants;
+import com.toodledo.android.oauth2.Parameters;
+ 
 
 /**
  * 
@@ -38,8 +37,8 @@ public class SharedPreferencesCredentialStore implements CredentialStore {
 	 */
 	public boolean load(String userId, Credential credential)
 			throws IOException {
-		Log.i(Constants.TAG, "Loading credential for userId " + userId);
-		Log.i(Constants.TAG,
+		Log.i(Parameters.TAG, "Loading credential for userId " + userId);
+		Log.i(Parameters.TAG,
 				"Loaded access token = "
 						+ prefs.getString(userId + ACCESS_TOKEN, ""));
 
@@ -57,11 +56,12 @@ public class SharedPreferencesCredentialStore implements CredentialStore {
 
 	/**
 	 * When storing credentials, we always expect to find an accessToken and
-	 * optionally a refresh token + expiration. 
+	 * optionally a refresh token + expiration.
+	 * 
 	 */
 	public void store(String userId, Credential credential) throws IOException {
-		Log.i(Constants.TAG, "Storing credential for userId " + userId);
-		Log.i(Constants.TAG, "Access Token = " + credential.getAccessToken());
+		Log.i(Parameters.TAG, "Storing credential for userId " + userId);
+		Log.i(Parameters.TAG, "Access Token = " + credential.getAccessToken());
 		Editor editor = prefs.edit();
 
 		editor.putString(userId + ACCESS_TOKEN, credential.getAccessToken());
@@ -87,7 +87,7 @@ public class SharedPreferencesCredentialStore implements CredentialStore {
 	 * 
 	 */
 	public void delete(String userId, Credential credential) throws IOException {
-		Log.i(Constants.TAG, "Deleting credential for userId " + userId);
+		Log.i(Parameters.TAG, "Deleting credential for userId " + userId);
 		Editor editor = prefs.edit();
 		editor.remove(userId + ACCESS_TOKEN);
 		editor.remove(userId + EXPIRES_IN);

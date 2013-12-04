@@ -29,28 +29,31 @@ public class OAuthAccessTokenActivity extends Activity {
 
 	private SharedPreferences prefs;
 	private OAuth2Helper oAuth2Helper;
-	private Oauth2Params oauthParams;
- 
+	private Parameters oauthParams;
+	private ProgressDialog progressDialog;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		Log.i(Constants.TAG, "Starting task to retrieve request token.");
+		if (progressDialog == null) {
+			progressDialog = new ProgressDialog(this);
+			progressDialog.setMessage("just a sec...");
+			progressDialog.show();
+		}
+		Log.i(Parameters.TAG, "Starting task to retrieve request token.");
 		this.prefs = PreferenceManager.getDefaultSharedPreferences(this);
-		oauthParams = ApplicationController.getInstance().getOauth2Params();
-		oAuth2Helper = new OAuth2Helper(this.prefs);
-		
+		oauthParams = ApplicationController.getInstance().getParameters();
+		oAuth2Helper = new OAuth2Helper(this.prefs, oauthParams);
+
 		webview = new WebView(this);
 		webview.getSettings().setJavaScriptEnabled(true);
 		webview.setVisibility(View.VISIBLE);
 		setContentView(webview);
- 
-		String authorizationUrl = oauthParams.getApiUrl()
-				+ "/account/authorize.php?response_type=code&client_id="
-				+ oauthParams.getClientId() + "&state="
-				+ oauthParams.getState() + "&scope=basic";
-		
-		Log.i(Constants.TAG, "Using authorizationUrl = " + authorizationUrl);
+
+		String authorizationUrl = oauthParams.getAuthorizationServerUrl()
+				+ "?response_type=code&client_id=" + oauthParams.getClientId()
+				+ "&state=" + oauthParams.getState() + "&scope=basic";
+		Log.i(Parameters.TAG, "Using authorizationUrl = " + authorizationUrl);
 
 		handled = false;
 
@@ -58,24 +61,36 @@ public class OAuthAccessTokenActivity extends Activity {
 
 			@Override
 			public void onPageStarted(WebView view, String url, Bitmap bitmap) {
-				Log.d(Constants.TAG, "onPageStarted : " + url + " handled = "
+				Log.d(Parameters.TAG, "onPageStarted : " + url + " handled = "
 						+ handled);
+
+			}
+
+			@Override
+			public boolean shouldOverrideUrlLoading(WebView view, String url) {
+				boolean shouldOverride = false;
+
+				if (!url.startsWith(oauthParams.getAuthorizationServerUrl())) {
+					progressDialog = new ProgressDialog(
+							OAuthAccessTokenActivity.this);
+					progressDialog.setMessage("just a sec...");
+					progressDialog.show();
+					webview.setVisibility(View.INVISIBLE);
+
+					new ProcessToken(url, oAuth2Helper).execute();
+
+					shouldOverride = true;
+				}
+
+				return shouldOverride;
 			}
 
 			@Override
 			public void onPageFinished(final WebView view, final String url) {
-				Log.d(Constants.TAG, "onPageFinished : " + url + " handled = "
+				Log.d(Parameters.TAG, "onPageFinished : " + url + " handled = "
 						+ handled);
-
-				if (url.startsWith(Constants.OAUTH2PARAMS.getRederictUri())) {
-					webview.setVisibility(View.INVISIBLE);
-
-					if (!handled) {
-						new ProcessToken(url, oAuth2Helper).execute();
-
-					}
-				} else {
-					webview.setVisibility(View.VISIBLE);
+				if (progressDialog.isShowing()) {
+					progressDialog.dismiss();
 				}
 			}
 
@@ -92,7 +107,7 @@ public class OAuthAccessTokenActivity extends Activity {
 	@Override
 	protected void onResume() {
 		super.onResume();
-		Log.i(Constants.TAG, "onResume called with " + hasLoggedIn);
+		Log.i(Parameters.TAG, "onResume called with " + hasLoggedIn);
 		if (hasLoggedIn) {
 			finish();
 		}
@@ -104,24 +119,24 @@ public class OAuthAccessTokenActivity extends Activity {
 		boolean startActivity = false;
 
 		public ProcessToken(String url, OAuth2Helper oAuth2Helper) {
-			this.url = url;
-		}
+			this.url = url; }
 
 		@Override
 		protected Void doInBackground(Uri... params) {
 
-			if (url.startsWith(Constants.OAUTH2PARAMS.getRederictUri())) {
-				Log.i(Constants.TAG, "Redirect URL found" + url);
+			// if (url.startsWith(oauthParams.getRederictUri())) {
+			if (!url.startsWith(oauthParams.getAuthorizationServerUrl())) {
+				Log.i(Parameters.TAG, "Redirect URL found" + url);
 				handled = true;
 				try {
 					if (url.indexOf("code=") != -1) {
 						String authorizationCode = extractCodeFromUrl(url);
-					 	oauthParams.setAuthorizationCode(authorizationCode);
-						Log.i(Constants.TAG, "Found code = "
+						// oauthParams.setAuthorizationCode(authorizationCode);
+						Log.i(Parameters.TAG, "Found code = "
 								+ authorizationCode);
 						storeAuthCode(authorizationCode);
-						oAuth2Helper
-								.retrieveAndStoreAccessToken(authorizationCode);
+						// oAuth2Helper
+						// .retrieveAndStoreAccessToken(authorizationCode);
 						startActivity = true;
 						hasLoggedIn = true;
 
@@ -134,14 +149,16 @@ public class OAuthAccessTokenActivity extends Activity {
 				}
 
 			} else {
-				Log.i(Constants.TAG, "Not doing anything for url " + url);
+				Log.i(Parameters.TAG, "Not doing anything for url " + url);
 			}
 			return null;
 		}
 
 		private String extractCodeFromUrl(String url) throws Exception {
-			String encodedCode = url.substring(Constants.OAUTH2PARAMS
-					.getRederictUri().length() + 7, url.indexOf(";"));
+			String redirectUri = url.substring(0, url.indexOf("code="));
+			oauthParams.setRederictUri(redirectUri);
+			String encodedCode = url.substring(oauthParams.getRederictUri()
+					.length() + 5, url.indexOf(";"));
 			return URLDecoder.decode(encodedCode, "UTF-8");
 		}
 
@@ -157,11 +174,14 @@ public class OAuthAccessTokenActivity extends Activity {
 		@Override
 		protected void onPostExecute(Void result) {
 			if (startActivity) {
-				Log.i(Constants.TAG, " ++++++++++++ Starting mainscreen again");
+				Log.i(Parameters.TAG, " ++++++++++++ Starting mainscreen again");
 				startActivity(new Intent(OAuthAccessTokenActivity.this,
 						MainScreen.class));
 
 				finish();
+				if (progressDialog.isShowing()) {
+					progressDialog.dismiss();
+				}
 			}
 
 		}
@@ -171,7 +191,7 @@ public class OAuthAccessTokenActivity extends Activity {
 	public void storeAuthCode(String authorizationCode) {
 
 		String clientId = oauthParams.getClientId();
-		Log.i(Constants.TAG, "Storing authCode for client Id " + clientId);
+		Log.i(Parameters.TAG, "Storing authCode for client Id " + clientId);
 
 		Editor editor = prefs.edit();
 

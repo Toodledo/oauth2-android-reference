@@ -5,9 +5,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
-import org.apache.http.client.ResponseHandler;
-import org.apache.http.impl.client.BasicResponseHandler;
-
 import android.content.SharedPreferences;
 import android.util.Log;
 
@@ -36,10 +33,10 @@ public class OAuth2Helper {
 
 	private AuthorizationCodeFlow flow;
 
-	private Oauth2Params oauth2Params;
+	private Parameters oauth2Params;
 
 	public OAuth2Helper(SharedPreferences sharedPreferences,
-			Oauth2Params oauth2Params) {
+			Parameters oauth2Params) {
 		this.credentialStore = new SharedPreferencesCredentialStore(
 				sharedPreferences);
 		this.oauth2Params = oauth2Params;
@@ -49,13 +46,9 @@ public class OAuth2Helper {
 				new ClientParametersAuthentication(oauth2Params.getClientId(),
 						oauth2Params.getClientSecret()),
 				oauth2Params.getClientId(),
-				oauth2Params.getAuthorizationServerEncodedUrl())
-				.setCredentialStore(this.credentialStore).build();
- 
-	}
+				oauth2Params.getAuthorizationServerUrl()).setCredentialStore(
+				this.credentialStore).build();
 
-	public OAuth2Helper(SharedPreferences sharedPreferences) {
-		this(sharedPreferences, Constants.OAUTH2PARAMS);
 	}
 
 	public String getAuthorizationUrl() {
@@ -68,23 +61,31 @@ public class OAuth2Helper {
 
 	public void retrieveAndStoreAccessToken(String authorizationCode)
 			throws IOException {
-		Log.i(Constants.TAG, "retrieveAndStoreAccessToken for code "
+		Log.i(Parameters.TAG, "retrieveAndStoreAccessToken for code "
 				+ authorizationCode);
-		TokenResponse tokenResponse = flow.newTokenRequest(authorizationCode)
-				.setScopes(convertScopesToString(oauth2Params.getScope()))
-				.setRedirectUri(oauth2Params.getRederictUri()).execute();
-		Log.i(Constants.TAG, "Found tokenResponse :");
-		Log.i(Constants.TAG, "Access Token : " + tokenResponse.getAccessToken());
-		Log.i(Constants.TAG,
-				"Refresh Token : " + tokenResponse.getRefreshToken());
-		flow.createAndStoreCredential(tokenResponse, oauth2Params.getUserId());
+		 
+			TokenResponse tokenResponse = flow
+					.newTokenRequest(authorizationCode)
+					.setScopes(convertScopesToString(oauth2Params.getScope()))
+					.setRedirectUri(oauth2Params.getRederictUri()).execute();
+
+			Log.i(Parameters.TAG, "Found tokenResponse :");
+			Log.i(Parameters.TAG,
+					"Access Token : " + tokenResponse.getAccessToken());
+			Log.i(Parameters.TAG,
+					"Refresh Token : " + tokenResponse.getRefreshToken());
+
+			flow.createAndStoreCredential(tokenResponse,
+					oauth2Params.getUserId());
+	 
 	}
 
-	public String executeApiCall() throws IOException { Credential cred = loadCredential();
-		String apiCallUrl = oauth2Params.getApiUrl()
+	public String executeApiCall() throws IOException {
+		Credential cred = loadCredential();
+		String apiCallUrl = "https://" + oauth2Params.getApiUrl()
 				+ oauth2Params.getGetJsonUrl() + "?" + "access_token="
 				+ cred.getAccessToken() + "&f=json";
-		Log.i(Constants.TAG, "Executing API call at url " + apiCallUrl);
+		Log.i(Parameters.TAG, "Executing API call at url " + apiCallUrl);
 
 		HttpResponse response = HTTP_TRANSPORT.createRequestFactory(cred)
 				.buildGetRequest(new GenericUrl(apiCallUrl)).execute();
@@ -107,17 +108,18 @@ public class OAuth2Helper {
 		return collection;
 	}
 
-	public void refreshToken() throws IOException {
-		String currentRefreshToken = loadCredential().getRefreshToken();
-		Log.i(Constants.TAG, "retrieveAndStoreAccessToken for code "
+	public void refreshToken(String refreshToken) throws IOException {
+		String currentRefreshToken = refreshToken; 
+		Log.i(Parameters.TAG, "retrieveAndStoreNEWAccessToken for code "
 				+ currentRefreshToken);
 		TokenResponse tokenResponse = flow.newTokenRequest(currentRefreshToken)
-				.setGrantType("refresh_token").set("refresh_token", currentRefreshToken).execute();
-		Log.i(Constants.TAG, "Found tokenResponse :");
-		Log.i(Constants.TAG, "New Access Token : " + tokenResponse.getAccessToken());
-		Log.i(Constants.TAG,
+				.setGrantType("refresh_token")
+				.set("refresh_token", currentRefreshToken).execute();
+		Log.i(Parameters.TAG, "Found new tokenResponse :");
+		Log.i(Parameters.TAG,
+				"New Access Token : " + tokenResponse.getAccessToken());
+		Log.i(Parameters.TAG,
 				"New Refresh Token : " + tokenResponse.getRefreshToken());
 		flow.createAndStoreCredential(tokenResponse, oauth2Params.getUserId());
-	}
-
+	} 
 }
