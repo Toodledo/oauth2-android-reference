@@ -31,7 +31,7 @@ public class OAuthAccessTokenActivity extends Activity {
 	private OAuth2Helper oAuth2Helper;
 	private Parameters oauthParams;
 	private ProgressDialog progressDialog;
-
+	private String storedState, returnedState;
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -44,7 +44,7 @@ public class OAuthAccessTokenActivity extends Activity {
 		this.prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		oauthParams = ApplicationController.getInstance().getParameters();
 		oAuth2Helper = new OAuth2Helper(this.prefs, oauthParams);
-
+		storedState = oauthParams.getState();
 		webview = new WebView(this);
 		webview.getSettings().setJavaScriptEnabled(true);
 		webview.setVisibility(View.VISIBLE);
@@ -123,20 +123,22 @@ public class OAuthAccessTokenActivity extends Activity {
 
 		@Override
 		protected Void doInBackground(Uri... params) {
-
-			// if (url.startsWith(oauthParams.getRederictUri())) {
+ 
 			if (!url.startsWith(oauthParams.getAuthorizationServerUrl())) {
 				Log.i(Parameters.TAG, "Redirect URL found" + url);
 				handled = true;
 				try {
 					if (url.indexOf("code=") != -1) {
 						String authorizationCode = extractCodeFromUrl(url);
-						// oauthParams.setAuthorizationCode(authorizationCode);
+						if (!returnedState.equalsIgnoreCase(storedState)) {
+							Log.i(Parameters.TAG, "Invalid state parameter");
+							finish();
+							return null;
+
+						}
 						Log.i(Parameters.TAG, "Found code = "
 								+ authorizationCode);
-						storeAuthCode(authorizationCode);
-						// oAuth2Helper
-						// .retrieveAndStoreAccessToken(authorizationCode);
+						storeAuthCode(authorizationCode); 
 						startActivity = true;
 						hasLoggedIn = true;
 
@@ -157,6 +159,7 @@ public class OAuthAccessTokenActivity extends Activity {
 		private String extractCodeFromUrl(String url) throws Exception {
 			String redirectUri = url.substring(0, url.indexOf("code="));
 			oauthParams.setRederictUri(redirectUri);
+			returnedState = url.substring(url.indexOf("state=") + 6);
 			String encodedCode = url.substring(oauthParams.getRederictUri()
 					.length() + 5, url.indexOf(";"));
 			return URLDecoder.decode(encodedCode, "UTF-8");

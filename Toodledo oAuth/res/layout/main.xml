@@ -141,7 +141,8 @@
                 android:id="@+id/get_access_code"
                 style="@style/ButtonText"
                 android:background="@drawable/btn_blue"
-                android:text="@string/get_access_code"   >
+                android:enabled="false"
+                android:text="@string/get_access_code" >
             </Button>
         </LinearLayout>
 
@@ -207,6 +208,7 @@
                 style="@style/ButtonText"
                 android:layout_weight="1"
                 android:background="@drawable/btn_blue"
+                android:enabled="false"
                 android:text="@string/get_user_email" >
             </Button>
 
@@ -215,6 +217,7 @@
                 style="@style/ButtonText"
                 android:layout_weight="1"
                 android:background="@drawable/btn_blue"
+                android:enabled="false"
                 android:text="@string/refresh" >
             </Button>
         </LinearLayout>
