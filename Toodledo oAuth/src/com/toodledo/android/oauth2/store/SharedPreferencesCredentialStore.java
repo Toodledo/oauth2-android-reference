@@ -1,4 +1,4 @@
-package com.tooldedo.android.oauth2.store;
+package com.toodledo.android.oauth2.store;
 
 import java.io.IOException;
 
