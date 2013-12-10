@@ -27,11 +27,15 @@ import android.webkit.WebViewClient;
 @SuppressLint("SetJavaScriptEnabled")
 public class OAuthAccessTokenActivity extends Activity {
 
+	private WebView webview;
 	private SharedPreferences prefs;
 	private OAuth2Helper oAuth2Helper;
 	private Parameters oauthParams;
 	private ProgressDialog progressDialog;
 	private String storedState, returnedState;
+	boolean handled = false;
+	private boolean hasLoggedIn;
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -99,10 +103,7 @@ public class OAuthAccessTokenActivity extends Activity {
 		webview.loadUrl(authorizationUrl);
 	}
 
-	private WebView webview;
 
-	boolean handled = false;
-	private boolean hasLoggedIn;
 
 	@Override
 	protected void onResume() {
@@ -143,6 +144,8 @@ public class OAuthAccessTokenActivity extends Activity {
 						hasLoggedIn = true;
 
 					} else if (url.indexOf("error=") != -1) {
+						
+						cleareAuthCode();
 						startActivity = true;
 					}
 
@@ -200,6 +203,15 @@ public class OAuthAccessTokenActivity extends Activity {
 
 		editor.putString(clientId + "_AUTH_CODE", authorizationCode);
 
+		editor.commit();
+
+	}
+	
+	public void cleareAuthCode() {
+ 
+		Log.i(Parameters.TAG, "Clearing existing authCode");
+		Editor editor = prefs.edit(); 
+		editor.remove(oauthParams.getClientId() + "_AUTH_CODE"); 		
 		editor.commit();
 
 	}
