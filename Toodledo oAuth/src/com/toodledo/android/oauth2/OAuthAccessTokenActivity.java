@@ -56,7 +56,7 @@ public class OAuthAccessTokenActivity extends Activity {
 
 		String authorizationUrl = oauthParams.getAuthorizationServerUrl()
 				+ "?response_type=code&client_id=" + oauthParams.getClientId()
-				+ "&state=" + oauthParams.getState() + "&scope=basic";
+				+ "&state=" + oauthParams.getState() + "&scope=" + oauthParams.getScope();
 		Log.i(Parameters.TAG, "Using authorizationUrl = " + authorizationUrl);
 
 		handled = false;
